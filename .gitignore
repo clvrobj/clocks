@@ -1,0 +1,5 @@
+*.py[cod~]
+.Python
+venv
+venv/*
+.python-version
