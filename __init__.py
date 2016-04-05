@@ -24,7 +24,10 @@ class ClockApp(rumps.App):
 
     @rumps.timer(1)
     def update_time(self, _):
-        self.title = datetime.strftime(datetime.now(), '%H:%M')
+        from dateutil.tz import tzlocal
+        location = datetime.now(tzlocal()).tzname()
+        disp_time = datetime.strftime(datetime.now(), '%H:%M')
+        self.title = '%s %s' % (location, disp_time)
 
 
 if __name__ == "__main__":
