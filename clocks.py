@@ -7,17 +7,17 @@ FLIP_TIMES = 6 # use next clock after being called FLIP_TIMES times
 
 class Clocks(object):
 
-    def __init__(self):
+    def __init__(self, tz_name=''):
         self.clocks = []
         self.clock_idx = 0
         self.call_times = 0
-        local_zone = get_localzone().zone
-        self.add_clock(local_zone)
+        tz_name = tz_name or get_localzone().zone
+        self.add_clock(tz_name)
 
     def add_clock(self, tz_name):
         tz = timezone(tz_name)
-        tz_name = tz.zone.split('/')[-1]
-        self.clocks.append((tz_name, tz))
+        display_name = tz.zone.split('/')[-1]
+        self.clocks.append({'tz':tz, 'display_name':display_name})
         return
 
     def get_clock_time_str(self):
@@ -28,7 +28,7 @@ class Clocks(object):
             if self.clock_idx == len(self.clocks):
                 self.clock_idx = 0
         clock = self.clocks[self.clock_idx]
-        cur_time = datetime.now(clock[1]) if clock[1] else datetime.now()
+        cur_time = datetime.now(clock['tz'])
         disp_time = datetime.strftime(cur_time, '%H:%M')
         self.call_times += 1
-        return '%s %s' % (clock[0], disp_time)
+        return '%s %s' % (clock['display_name'], disp_time)
