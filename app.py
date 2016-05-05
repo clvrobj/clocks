@@ -1,43 +1,44 @@
 # -*- coding: utf-8 -*-
-from rumps import App, clicked, MenuItem, timer
+from rumps import App, clicked, MenuItem, timer, debug_mode
 from clocks import Clocks
 
+# intervals of the clocks change
+DEFAULT_INTVL_STR = '10s'
+INTVLS = ['5s', '10s', '30s', '1min']
+INTVLS_MAP = {'5s': 5, '10s': 10, '30s': 30, '1min': 60}
 
 class ClockApp(App):
 
     def __init__(self):
         super(ClockApp, self).__init__("Clock")
-        self.menu = ["Preferences", "Silly button", "Say hi"]
-        self.clocks = Clocks(flip_times=8)
+        self.init_menu()
+        self.clocks = Clocks(times_to_flip=INTVLS_MAP.get(DEFAULT_INTVL_STR))
         self.clocks.add_clock('Europe/London')
         self.clocks.add_clock('Europe/Amsterdam')
         # self.clocks.add_clock('Asia/Tokyo')
-        # rumps.debug_mode(True)
+        debug_mode(True)
 
-    # @rumps.clicked("Preferences")
-    # def prefs(self, _):
-    #     rumps.alert(message='something', ok='YES!', cancel='NO!')
-
-    # @rumps.clicked("Silly button")
-    # def onoff(self, sender):
-    #     sender.state = not sender.state
-
-    # @rumps.clicked("Say hi")
-    # def sayhi(self, _):
-    #     rumps.notification("Awesome title", "amazing subtitle", "hi!!1")
+    def init_menu(self):
+        self.interval_menu = MenuItem('Update time')
+        for secs in INTVLS:
+            item = MenuItem(secs, callback=self.update_interval)
+            if secs == DEFAULT_INTVL_STR:
+                item.state = 1
+            self.interval_menu.add(item)
+        self.menu = [self.interval_menu]
 
     @timer(1)
     def update(self, _):
         self.title = self.clocks.get_clock_time_str()
 
-    # @clicked('Update time')
-    def update_time(self, sender):
-        print 'hello {}'.format(sender)
+    def update_interval(self, sender):
+        for item in self.interval_menu.values():
+            item.state = 0
+        sender.state = 1
+        self.clocks.set_times_to_flip(INTVLS_MAP.get(sender.title, 5))
 
 
 if __name__ == "__main__":
     app = ClockApp()
-    app.menu = [
-        [MenuItem('Update time', callback=app.update_time), ('5s', '10s', '30s')]
-    ]
     app.run()
+
