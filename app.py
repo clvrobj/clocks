@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from rumps import App, clicked, MenuItem, timer, debug_mode
+import sys
+from rumps import debug_mode, App, clicked, MenuItem, timer, separator
 from clocks import Clocks
 
 # intervals of the clocks change
@@ -13,10 +14,9 @@ class ClockApp(App):
         super(ClockApp, self).__init__("Clock")
         self.init_menu()
         self.clocks = Clocks(times_to_flip=INTVLS_MAP.get(DEFAULT_INTVL_STR))
-        self.clocks.add_clock('Europe/London')
-        self.clocks.add_clock('Europe/Amsterdam')
-        # self.clocks.add_clock('Asia/Tokyo')
-        debug_mode(True)
+        self.add_clock('Europe/London')
+        self.add_clock('Europe/Amsterdam')
+        # self.add_clock('Asia/Tokyo')
 
     def init_menu(self):
         self.interval_menu = MenuItem('Update time')
@@ -37,8 +37,19 @@ class ClockApp(App):
         sender.state = 1
         self.clocks.set_times_to_flip(INTVLS_MAP.get(sender.title, 5))
 
+    def add_clock(self, tz_name):
+        self.clocks.add_clock(tz_name)
+        # reconstruct clocks menu
+        items = []
+        items.extend(self.clocks.get_all_clock_time_str())
+        items.append(separator)
+        items.append(self.interval_menu)
+        self.menu.clear()
+        self.menu.update(items)
+
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == 'debug':
+        debug_mode(True)
     app = ClockApp()
     app.run()
-

@@ -12,22 +12,23 @@ class Clocks(object):
         self.clock_idx = 0
         self.call_times = 0
         self.times_to_flip = times_to_flip
+        # add the time zone input or the local zone by default
         tz_name = tz_name or get_localzone().zone
         self.add_clock(tz_name)
 
     def add_clock(self, tz_name):
+        # TODO check the validation of tz name
         tz = timezone(tz_name)
         display_name = tz.zone.split('/')[-1].replace('_', ' ')
         self.clocks.append({'tz':tz, 'display_name':display_name})
         return
 
     def get_clock_time_str(self):
-        if len(self.clocks) == 0:
-            return
-        if self.call_times % self.times_to_flip == self.times_to_flip - 1:
-            self.clock_idx += 1
-            if self.clock_idx == len(self.clocks):
-                self.clock_idx = 0
+        if len(self.clocks) > 1:
+            if self.call_times % self.times_to_flip == self.times_to_flip - 1:
+                self.clock_idx += 1
+                if self.clock_idx == len(self.clocks):
+                    self.clock_idx = 0
         clock = self.clocks[self.clock_idx]
         cur_time = datetime.now(clock['tz'])
         disp_time = datetime.strftime(cur_time, '%H:%M')
@@ -37,3 +38,17 @@ class Clocks(object):
     def set_times_to_flip(self, times_to_flip):
         self.times_to_flip = int(times_to_flip)
         self.call_times = 0
+
+    def get_all_clock_display_name(self):
+        ret = []
+        for clock in self.clocks:
+            ret.append(clock['display_name'])
+        return ret
+
+    def get_all_clock_time_str(self):
+        ret = []
+        for clock in self.clocks:
+            cur_time = datetime.now(clock['tz'])
+            disp_time = datetime.strftime(cur_time, '%H:%M')
+            ret.append('%s %s' % (clock['display_name'], disp_time))
+        return ret
