@@ -1,8 +1,8 @@
 app:
-	python app.py
+	venv/bin/python app.py
 
 debug:
-	python app.py debug
+	venv/bin/python app.py debug
 
 test:
-	python tests/test_clocks.py
+	venv/bin/python tests/test_clocks.py
