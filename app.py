@@ -11,7 +11,7 @@ DEFAULT_INTVL_STR = '3s'
 INTVLS = ['3s', '5s', '10s', '30s', '1min']
 INTVLS_MAP = {'3s': 3, '5s': 5, '10s': 10, '30s': 30, '1min': 60}
 
-TIMEZONES = pytz.all_timezones
+TIMEZONES = pytz.common_timezones
 
 class ClockApp(App):
 
