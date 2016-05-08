@@ -14,7 +14,7 @@ class ClocksTest(unittest.TestCase):
         local_tz_name = get_localzone().zone
         clocks = Clocks(local_tz_name)
         assert len(clocks.clock_keys) == 1
-        assert local_tz_name == clocks.get_clock_by_idx(0)['tz'].zone
+        assert local_tz_name == clocks.get_clock_by_idx(0).tz.zone
         return
 
     def test_add_clock(self):
@@ -22,13 +22,32 @@ class ClocksTest(unittest.TestCase):
         assert len(clocks.clocks) == 0
         tz_london = 'Europe/London'
         clocks.add_clock(tz_london)
-        assert len(clocks.clock_keys) == 1
-        assert clocks.get_clock_by_idx(0)['tz'].zone == tz_london
+        assert len(clocks.clocks) == 1
+        assert clocks.get_clock_by_idx(0).tz.zone == tz_london
         tz_tokyo = 'Asia/Tokyo'
         clocks.add_clock(tz_tokyo)
-        assert len(clocks.clock_keys) == 2
-        assert clocks.get_clock_by_idx(1)['tz'].zone == tz_tokyo
+        assert len(clocks.clocks) == 2
+        assert clocks.get_clock_by_idx(1).tz.zone == tz_tokyo
+        # test get_history_clocks
+        assert tz_london in clocks.get_history_clocks()
+        assert tz_tokyo in clocks.get_history_clocks()
         return
+
+    def test_remove_clock(self):
+        clocks = Clocks()
+        assert len(clocks.clocks) == 0
+        tz_london = 'Europe/London'
+        tz_tokyo = 'Asia/Tokyo'
+        clocks.add_clock(tz_london)
+        clocks.add_clock(tz_tokyo)
+        assert len(clocks.clock_keys) == 2
+        assert clocks.get_clock_by_idx(0).tz.zone == tz_london
+        assert clocks.get_clock_by_idx(1).tz.zone == tz_tokyo
+        # test get_history_clocks
+        clocks.remove_clock(tz_tokyo)
+        assert len(clocks.clock_keys) == 1
+        assert tz_london in clocks.get_history_clocks()
+        assert tz_tokyo in clocks.get_history_clocks()
 
     def test_get_all_clock_time_str(self):
         clocks = Clocks()
@@ -36,7 +55,7 @@ class ClocksTest(unittest.TestCase):
         tz_tokyo = 'Asia/Tokyo'
         clocks.add_clock(tz_london)
         clocks.add_clock(tz_tokyo)
-        assert len(clocks.clock_keys) == 2
+        assert len(clocks.clocks) == 2
         clocks_strs = clocks.get_all_clock_time_str()
         assert len(clocks_strs) == 2
 

@@ -23,18 +23,21 @@ class ClockApp(App):
 
     def init_menu(self):
         # add timezones menu
-        self.timezones_menu = MenuItem('Time zones')
+        self.timezones_menu = MenuItem('Time Zones')
         for tz in TIMEZONES:
             self.timezones_menu.add(MenuItem(tz, callback=self.switch_clock_callback))
+        # recently added menu
+        self.recent_menu = MenuItem('Add Recent')
         # add interval menu
-        self.interval_menu = MenuItem('Update time')
+        self.interval_menu = MenuItem('Update Time')
         for secs in INTVLS:
             item = MenuItem(secs, callback=self.update_interval)
             if secs == DEFAULT_INTVL_STR:
                 item.state = 1
             self.interval_menu.add(item)
         self.quit_btn = MenuItem('Quit', callback=self.quit_app)
-        self.menu = [self.timezones_menu, self.interval_menu, self.quit_btn]
+        self.menu = [self.timezones_menu, self.recent_menu,
+                     self.interval_menu, self.quit_btn]
 
     @timer(1)
     def update(self, _):
@@ -61,6 +64,12 @@ class ClockApp(App):
         items.extend(self.clocks.get_all_clock_time_str())
         items.append(separator)
         items.append(self.timezones_menu)
+        if len(self.recent_menu.keys()) > 0:
+            self.recent_menu.clear()
+        for c in self.clocks.get_history_clocks():
+            self.recent_menu.add(
+                MenuItem(c, callback=self.add_clock_from_recent_callback))
+        items.append(self.recent_menu)
         items.append(self.interval_menu)
         items.append(self.quit_btn)
         self.menu.clear()
@@ -72,6 +81,11 @@ class ClockApp(App):
         else:
             self.remove_clock(sender.title)
         sender.state = not sender.state
+
+    def add_clock_from_recent_callback(self, sender):
+        tz_name = sender.title
+        self.add_clock(tz_name)
+        self.timezones_menu[tz_name].state = 1
 
     def add_local_clock(self):
         # add local zone by default
