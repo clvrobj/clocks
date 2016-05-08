@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+import pytz
 from tzlocal import get_localzone
 from rumps import (debug_mode, App, clicked, MenuItem, timer,
                    separator, quit_application)
@@ -10,11 +11,7 @@ DEFAULT_INTVL_STR = '3s'
 INTVLS = ['3s', '5s', '10s', '30s', '1min']
 INTVLS_MAP = {'3s': 3, '5s': 5, '10s': 10, '30s': 30, '1min': 60}
 
-TIMEZONES = ['Asia/Dubai', 'Asia/Tokyo', 'Asia/Taipei',
-             'Asia/Hong_Kong', 'Asia/Seoul', 'Asia/Bangkok',
-             'America/New_York', 'America/Los_Angeles',
-             'Europe/London', 'Europe/Stockholm', 'Europe/Amsterdam']
-
+TIMEZONES = pytz.all_timezones
 
 class ClockApp(App):
 
@@ -42,6 +39,7 @@ class ClockApp(App):
     @timer(1)
     def update(self, _):
         self.title = self.clocks.get_clock_time_str()
+        self.update_clocks_menu()
 
     def update_interval(self, sender):
         for item in self.interval_menu.values():
