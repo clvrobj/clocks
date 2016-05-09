@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
+import os
 import sys
 import pytz
+import pickle
 from tzlocal import get_localzone
 from rumps import (debug_mode, App, clicked, MenuItem, timer,
-                   separator, quit_application)
+                   separator, application_support, quit_application)
 from clocks import Clocks
+
+APP_NAME = 'Clocks'
+CLOCKS_FILENAME = 'clocks_tz'
 
 # intervals of the clocks change
 DEFAULT_INTVL_STR = '3s'
@@ -19,7 +24,28 @@ class ClockApp(App):
         super(ClockApp, self).__init__("Clock", quit_button=None)
         self.init_menu()
         self.clocks = Clocks(times_to_flip=INTVLS_MAP.get(DEFAULT_INTVL_STR))
-        self.add_local_clock()
+        self.load_clocks_data()
+
+    def load_clocks_data(self):
+        clocks_tz = []
+        filepath = application_support(APP_NAME) + '/' + CLOCKS_FILENAME
+        if os.path.exists(filepath):
+            f = open(filepath, 'r')
+            for e in pickle.load(f):
+                if isinstance(e, str):
+                    clocks_tz.append(e)
+        if len(clocks_tz) > 0:
+            for tz in clocks_tz:
+                self.add_clock(tz)
+        else:
+            self.add_local_clock()
+        return
+
+    def dump_clocks_data(self):
+        filepath = application_support(APP_NAME) + '/' + CLOCKS_FILENAME
+        f = open(filepath, 'wb')
+        pickle.dump(self.clocks.clock_keys, f)
+        return
 
     def init_menu(self):
         # add timezones menu
@@ -53,10 +79,12 @@ class ClockApp(App):
     def add_clock(self, tz_name):
         if self.clocks.add_clock(tz_name):
             self.update_clocks_menu()
+            self.timezones_menu[tz_name].state = 1
 
     def remove_clock(self, tz_name):
         if self.clocks.remove_clock(tz_name):
             self.update_clocks_menu()
+            self.timezones_menu[tz_name].state = 0
 
     def update_clocks_menu(self):
         # reconstruct clocks menu
@@ -76,14 +104,14 @@ class ClockApp(App):
         self.menu.update(items)
 
     def switch_clock_callback(self, sender):
+        tz_name = str(sender.title)
         if sender.state == 0:
-            self.add_clock(sender.title)
+            self.add_clock(tz_name)
         else:
-            self.remove_clock(sender.title)
-        sender.state = not sender.state
+            self.remove_clock(tz_name)
 
     def add_clock_from_recent_callback(self, sender):
-        tz_name = sender.title
+        tz_name = str(sender.title)
         self.add_clock(tz_name)
         self.timezones_menu[tz_name].state = 1
 
@@ -99,6 +127,7 @@ class ClockApp(App):
             self.timezones_menu.add(item)
 
     def quit_app(self, sender):
+        self.dump_clocks_data()
         quit_application(sender)
 
 
