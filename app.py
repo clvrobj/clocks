@@ -9,7 +9,8 @@ from rumps import (debug_mode, App, clicked, MenuItem, timer,
 from clocks import Clocks
 
 APP_NAME = 'Clocks'
-CLOCKS_FILENAME = 'clocks_tz'
+SUPPORT_CLOCKS_FILENAME = 'clocks_tz'
+SUPPORT_INTVL_FILENAME = 'intvl'
 
 # intervals of the clocks change
 DEFAULT_INTVL_STR = '3s'
@@ -25,10 +26,11 @@ class ClockApp(App):
         self.init_menu()
         self.clocks = Clocks(times_to_flip=INTVLS_MAP.get(DEFAULT_INTVL_STR))
         self.load_clocks_data()
+        self.load_intvl_data()
 
     def load_clocks_data(self):
         clocks_tz = []
-        filepath = application_support(APP_NAME) + '/' + CLOCKS_FILENAME
+        filepath = application_support(APP_NAME) + '/' + SUPPORT_CLOCKS_FILENAME
         if os.path.exists(filepath):
             f = open(filepath, 'r')
             for e in pickle.load(f):
@@ -42,9 +44,24 @@ class ClockApp(App):
         return
 
     def dump_clocks_data(self):
-        filepath = application_support(APP_NAME) + '/' + CLOCKS_FILENAME
+        filepath = application_support(APP_NAME) + '/' + SUPPORT_CLOCKS_FILENAME
         f = open(filepath, 'wb')
         pickle.dump(self.clocks.clock_keys, f)
+        return
+
+    def load_intvl_data(self):
+        filepath = application_support(APP_NAME) + '/' + SUPPORT_INTVL_FILENAME
+        if os.path.exists(filepath):
+            f = open(filepath, 'r')
+            intvl = pickle.load(f)
+            self.clocks.set_times_to_flip(intvl)
+            for s, i in INTVLS_MAP.items():
+                self.interval_menu[s].state = 1 if i == intvl else 0
+
+    def dump_intvl_data(self):
+        filepath = application_support(APP_NAME) + '/' + SUPPORT_INTVL_FILENAME
+        f = open(filepath, 'wb')
+        pickle.dump(self.clocks.times_to_flip, f)
         return
 
     def init_menu(self):
@@ -128,6 +145,7 @@ class ClockApp(App):
 
     def quit_app(self, sender):
         self.dump_clocks_data()
+        self.dump_intvl_data()
         quit_application(sender)
 
 
