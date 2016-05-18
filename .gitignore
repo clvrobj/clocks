@@ -3,3 +3,5 @@
 venv
 venv/*
 .python-version
+dist
+build

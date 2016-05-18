@@ -4,8 +4,8 @@ import sys
 import pytz
 import pickle
 from tzlocal import get_localzone
-from rumps import (debug_mode, App, clicked, MenuItem, timer,
-                   separator, application_support, quit_application)
+from rumps import (App, clicked, MenuItem, timer, separator,
+                   application_support, quit_application)
 from clocks import Clocks
 
 APP_NAME = 'Clocks'
@@ -18,6 +18,8 @@ INTVLS = ['3s', '5s', '10s', '30s', '1min']
 INTVLS_MAP = {'3s': 3, '5s': 5, '10s': 10, '30s': 30, '1min': 60}
 
 TIMEZONES = pytz.common_timezones
+
+ABOUT_URL = 'http://zhangchi.de/tag/Clocks.html'
 
 class ClockApp(App):
 
@@ -78,9 +80,10 @@ class ClockApp(App):
             if secs == DEFAULT_INTVL_STR:
                 item.state = 1
             self.interval_menu.add(item)
+        self.about_btn = MenuItem('About', callback=self.open_about)
         self.quit_btn = MenuItem('Quit', callback=self.quit_app)
         self.menu = [self.timezones_menu, self.recent_menu,
-                     self.interval_menu, self.quit_btn]
+                     self.interval_menu, self.about_btn, self.quit_btn]
 
     @timer(1)
     def update(self, _):
@@ -116,6 +119,7 @@ class ClockApp(App):
                 MenuItem(c, callback=self.add_clock_from_recent_callback))
         items.append(self.recent_menu)
         items.append(self.interval_menu)
+        items.append(self.about_btn)
         items.append(self.quit_btn)
         self.menu.clear()
         self.menu.update(items)
@@ -143,6 +147,12 @@ class ClockApp(App):
             item.state = 1
             self.timezones_menu.add(item)
 
+    def open_about(self, sender):
+        import webbrowser
+        # new = 2 for opening in the tab if possible
+        webbrowser.open(ABOUT_URL, new=2)
+        return
+
     def quit_app(self, sender):
         self.dump_clocks_data()
         self.dump_intvl_data()
@@ -151,6 +161,7 @@ class ClockApp(App):
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == 'debug':
+        from rumps import debug_mode
         debug_mode(True)
     app = ClockApp()
     app.run()
