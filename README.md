@@ -1,5 +1,5 @@
-Clock
-=====
+Clocks
+======
 
 A OSX menu bar clocks showing different time zone.
 
