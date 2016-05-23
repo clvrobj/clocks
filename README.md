@@ -11,6 +11,7 @@ $ python app.py
 ```
 
 # Preview
+![preview](https://raw.githubusercontent.com/clvrobj/clocks/master/clocks-preview.gif?token=AAasjMLgPC1GRLokMSjPL7JZUFLskoz9ks5XTEcrwA%3D%3D)
 
 # TODO
 * Standalone app
