@@ -5,7 +5,7 @@ A OSX menu bar clocks showing different time zone.
 
 # Install
 ```
-$ git clone git://github.com/clvrobj/chili.git
+$ git clone git@github.com:clvrobj/clocks.git
 $ pip install -r requirements.txt
 $ python app.py
 ```
